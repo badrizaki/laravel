@@ -1,0 +1,75 @@
+<?php 
+
+namespace DummyNamespace;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Datatables;
+
+class DummyClass extends BaseController
+{
+    protected $redirectTo = 'url/dummy'; // REDIRECT URL
+    protected $redirectIndex = 'dummy.index'; // View dummy
+    protected $redirectEditable = 'dummy.editable'; // vied add and update
+
+    /**
+    * Send data to view
+    */
+    protected function getList()
+    {
+        // return \App\Models\DummyModel::all(); 
+    }
+
+    /**
+    * list ajax for datatables
+    */
+    protected function listAjax()
+    {
+        /*
+        $dummy = new \App\Models\DummyModel(); 
+        $dummy = $dummy->select(['dummyId', 'name', 'created_at', 'updated_at']);
+
+        return Datatables::of($dummy)
+            ->addColumn('action', function ($dummy)
+            {
+                $action = '';
+                $action .= '<a href="'.route('dummy.index').'/'.$dummy->dummyId.'/edit" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>&nbsp;&nbsp;&nbsp;';
+                $action .= '<a href="#" class="btn btn-xs btn-primary" onClick="listManager.delete(\''.$dummy->dummyId.'\')"><i class="glyphicon glyphicon-trash"></i> Delete</a>';
+                return $action;
+            })
+            ->editColumn('id', 'ID: {{$dummyId}}')
+            ->make(true);
+        */
+    }
+
+    protected function getLookUp()
+    {
+        // return null; // data
+    }
+
+    protected function find($id)
+    {
+        // return \App\Models\DummyModel::find($id);
+    }
+
+    protected function validateData(Request $request, $id)
+    {
+        /*if($id > 0) return null;
+        return Validator::make($request->all(), [
+            'url' => 'required|mimetypes:image/jpeg,image/jpg'
+        ]);*/
+    }
+
+    protected function saveData(Request $request, $id)
+    {
+        /*$item = new \App\Models\DummyModel();
+        
+        if($id > 0) $item = $item->find($id);
+
+        $item->title = $request->title;
+        $item->description = $request->description;
+        $item->link_text = $request->link_text;
+        $item->link_url = $request->link_url;
+        $item->save();*/
+    }
+}
