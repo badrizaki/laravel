@@ -1,0 +1,89 @@
+<?php 
+
+namespace DummyNamespace;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Datatables;
+
+class DummyClass extends BaseController
+{
+    protected $redirectTo = 'url/dummy'; // REDIRECT URL
+    protected $redirectIndex = 'dummy.index'; // View dummy
+    protected $redirectEditable = 'dummy.editable'; // vied add and update
+
+    /**
+    * Send data to view
+    */
+    protected function getList()
+    {
+        // return \App\Models\DummyModel::all(); 
+    }
+
+    /**
+    * list ajax for datatables
+    */
+    protected function listAjax()
+    {
+        $dummy = new \App\Models\DummyModel(); 
+        $dummy = $dummy->select(['dummyId', 'name', 'created_at', 'updated_at']);
+
+        return Datatables::of($dummy)
+            ->addColumn('action', function ($dummy)
+            {
+                $action = '';
+                $action .= '<a href="'.route('dummy.index').'/'.$dummy->dummyId.'/edit" class="btn btn-xs btn-primary"><i class="'.$this->icon['tables']['edit'].'"></i> Edit</a>&nbsp;&nbsp;&nbsp;';
+                // $action .= '<a href="'.route('dummy.index').'/'.$dummy->dummyId.'" class="btn btn-xs btn-primary"><i class="'.$this->icon['tables']['detail'].'"></i> Detail</a>&nbsp;&nbsp;&nbsp;';
+                $action .= '<a href="#" class="btn btn-xs btn-primary" onClick="listManager.delete(\''.$dummy->dummyId.'\')"><i class="'.$this->icon['tables']['delete'].'"></i> Delete</a>';
+                return $action;
+            })
+            ->editColumn('id', 'ID: {{$dummyId}}')
+            ->rawColumns(['action']) // raw show html
+            ->make(true);
+    }
+
+    protected function getLookUp()
+    {
+        $data = array();
+        return $data; // data
+    }
+
+    protected function find($id)
+    {
+        return \App\Models\DummyModel::find($id);
+    }
+
+    protected function validateData(Request $request, $id)
+    {
+        /*if($id > 0) return null;*/
+        return Validator::make($request->all(), [
+            'image'         => 'required|mimetypes:image/jpeg,image/jpg',
+            'sample1'       => 'required_without_all:sample2|numeric',
+            'sample2'       => 'required_without_all:sample1|numeric',
+            'string'        => 'required|string',
+            'numeric'       => 'required|numeric|max:100',
+            'nullable'      => 'nullable|numeric',
+            'uniqueField'   => 'nullable|max:20|unique:nametables',
+            'email'         => 'required|string|email|max:50|unique:users,email,dataValue',// unique with value $datavalue
+            'password'      => 'required|string|min:6|confirmed', // with field name password_confirm
+        ],
+        [
+            // custome message
+            'numeric.required'   => 'Please fill numeric',
+            'uniqueField.unique' => 'Must unique',
+        ]);
+    }
+
+    protected function saveData(Request $request, $id)
+    {
+        $item = new \App\Models\DummyModel();
+        
+        if($id > 0) $item = $item->find($id);
+
+        $item->title        = $request->title;
+        $item->description  = $request->description;
+        $item->link_text    = $request->link_text;
+        $item->link_url     = $request->link_url;
+        $item->save();
+    }
+}
