@@ -13,7 +13,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        require_once app_path('Rules/CustomRule.php');
     }
 
     /**
@@ -23,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        require_once app_path('Helpers/GlobalHelper.php');
+        require_once app_path('Helpers/phpqrcode/qrlib.php');
     }
 }

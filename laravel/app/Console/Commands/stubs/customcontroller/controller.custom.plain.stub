@@ -8,16 +8,28 @@ use Datatables;
 
 class DummyClass extends BaseController
 {
-    protected $redirectTo = 'url/dummy'; // REDIRECT URL
-    protected $redirectIndex = 'dummy.index'; // View dummy
+    protected $mainPage = 'mainpage'; // mainpage
+    protected $redirectTo = 'dummy'; // REDIRECT URL
+    protected $redirectIndex = 'dummy.index'; // View index
     protected $redirectEditable = 'dummy.editable'; // vied add and update
+    protected $redirectShow = 'dummy.show'; // vied add and update
+
+    public function index()
+    {
+        $mainPage = $this->mainPage;
+        $list = [];
+        $list = $this->getList();
+        return view($this->redirectIndex, compact('list', 'mainPage'));
+    }
 
     /**
     * Send data to view
     */
     protected function getList()
     {
-        // return \App\Models\DummyModel::all(); 
+        $list = [];
+        // $list['dummy'] = \App\Models\DummyModel::orderBy('order', 'asc')->get()->toArray();
+        return $list;
     }
 
     /**
@@ -25,16 +37,16 @@ class DummyClass extends BaseController
     */
     protected function listAjax()
     {
-        $dummy = new \App\Models\DummyModel(); 
-        $dummy = $dummy->select(['dummyId', 'name', 'created_at', 'updated_at']);
+        $item = new \App\Models\DummyModel(); 
+        $item = $item->select(['*']);
 
-        return Datatables::of($dummy)
-            ->addColumn('action', function ($dummy)
+        return Datatables::of($item)
+            ->addColumn('action', function ($item)
             {
                 $action = '';
-                $action .= '<a href="'.route('dummy.index').'/'.$dummy->dummyId.'/edit" class="btn btn-xs btn-primary"><i class="'.$this->icon['tables']['edit'].'"></i> Edit</a>&nbsp;&nbsp;&nbsp;';
-                // $action .= '<a href="'.route('dummy.index').'/'.$dummy->dummyId.'" class="btn btn-xs btn-primary"><i class="'.$this->icon['tables']['detail'].'"></i> Detail</a>&nbsp;&nbsp;&nbsp;';
-                $action .= '<a href="#" class="btn btn-xs btn-primary" onClick="listManager.delete(\''.$dummy->dummyId.'\')"><i class="'.$this->icon['tables']['delete'].'"></i> Delete</a>';
+                $action .= '<a href="'.route('dummy.index').'/'.$item->dummyId.'/edit" class="btn btn-xs btn-primary"><i class="'.$this->icon['tables']['edit'].'"></i> Edit</a>&nbsp;&nbsp;&nbsp;';
+                // $action .= '<a href="'.route('dummy.index').'/'.$item->dummyId.'" class="btn btn-xs btn-primary"><i class="'.$this->icon['tables']['detail'].'"></i> Detail</a>&nbsp;&nbsp;&nbsp;';
+                $action .= '<a href="#" class="btn btn-xs btn-primary" onClick="listManager.delete(\''.$item->dummyId.'\')"><i class="'.$this->icon['tables']['delete'].'"></i> Delete</a>';
                 return $action;
             })
             ->editColumn('id', 'ID: {{$dummyId}}')
@@ -56,7 +68,7 @@ class DummyClass extends BaseController
     protected function validateData(Request $request, $id)
     {
         /*if($id > 0) return null;*/
-        return Validator::make($request->all(), [
+        /*return Validator::make($request->all(), [
             'image'         => 'required|mimetypes:image/jpeg,image/jpg',
             'sample1'       => 'required_without_all:sample2|numeric',
             'sample2'       => 'required_without_all:sample1|numeric',
@@ -71,7 +83,7 @@ class DummyClass extends BaseController
             // custome message
             'numeric.required'   => 'Please fill numeric',
             'uniqueField.unique' => 'Must unique',
-        ]);
+        ]);*/
     }
 
     protected function saveData(Request $request, $id)
@@ -80,10 +92,23 @@ class DummyClass extends BaseController
         
         if($id > 0) $item = $item->find($id);
 
-        $item->title        = $request->title;
-        $item->description  = $request->description;
-        $item->link_text    = $request->link_text;
-        $item->link_url     = $request->link_url;
+        /*
+        if ($request->Filedata)
+        {
+            $image          = $request->Filedata;
+            $imageName      = time().$image->getClientOriginalName();
+            // $imageName      = md5($image->getClientOriginalName().time()).'.'.$image->getClientOriginalExtension();
+            $destinationPath= $this->Config::get('app.directory.article');
+            $result         = $image->move($destinationPath, $imageName);
+            $imageUrl       = $destinationPath."/".$imageName;
+            $item->imageUrl = $imageUrl;
+
+            $thumbUrl = image_thumb($imageUrl, 320, 150, true, 'filename');
+            $item->thumbUrl = $thumbUrl;
+        }
+        */
+
+'[COLUMN]'
         $item->save();
     }
 }

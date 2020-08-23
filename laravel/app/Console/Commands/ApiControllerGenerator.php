@@ -1,5 +1,13 @@
 <?php
 
+/**
+ *  Name         : ApiControllerGenerator.
+ *  Description  : This class for create API Controller.
+ *  @copyright   : Badri Zaki
+ *  @version     : 1.8
+ *  @author      : Badri Zaki - badrizaki@gmail.com
+**/
+
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;

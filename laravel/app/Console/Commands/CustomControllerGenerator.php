@@ -1,10 +1,19 @@
 <?php
 
+/**
+ *  Name         : CustomControllerGenerator.
+ *  Description  : Class for create custom controller.
+ *  @copyright   : Badri Zaki
+ *  @version     : 1.8
+ *  @author      : Badri Zaki - badrizaki@gmail.com
+**/
+
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Facades\Schema;
 
 class CustomControllerGenerator extends Command
 {
@@ -19,7 +28,7 @@ class CustomControllerGenerator extends Command
      *
      * @var string
      */
-    protected $signature = 'make:custom-controller {name}';
+    protected $signature = 'make:custom-controller {name} {--table=}';
 
     /**
      * The console command description.
@@ -83,13 +92,17 @@ class CustomControllerGenerator extends Command
             return false;
         }
 
+        /* GET COLUMN FROM DATABASE */
+        $table  = $this->getTableInput();
+        $column = $this->getColumn($table);
+
         /**
         * Next, we will generate the path to the location where this class' file should get
         * written. Then, we will build the class and make the proper replacements on the
         * stub files so that it gets the correctly formatted namespace and class name.
         */
         $this->makeDirectory($path);
-        $this->files->put($path, $this->buildClass($name));
+        $this->files->put($path, $this->buildClass($name, $table, $column));
 
         /**
         * Check BaseController, if BaseController doesn't exists then create BaseController
@@ -136,6 +149,16 @@ class CustomControllerGenerator extends Command
     protected function getNameInput()
     {
         return trim($this->argument('name'));
+    }
+
+    /**
+     * Get the desired table name from the input.
+     *
+     * @return string
+     */
+    protected function getTableInput()
+    {
+        return trim($this->option('table'));
     }
 
     /**
@@ -191,11 +214,12 @@ class CustomControllerGenerator extends Command
      * @param  string  $name
      * @return string
      */
-    protected function buildClass($name)
+    protected function buildClass($name, $table, $column)
     {
         $stub = $this->files->get($this->getStub());
         $stub = $this->replaceClassModel($stub, $name);
         $stub = $this->replaceViewName($stub, $name);
+        $stub = $this->replaceColumnFillable($stub, $column);
         $stub = $this->replaceNamespace($stub, $name)->replaceClass($stub, $name);
         return $stub;
     }
@@ -322,5 +346,67 @@ class CustomControllerGenerator extends Command
         $class = str_replace($this->getNamespace($name).'\\', '', $name);
         $viewName = str_replace('Controller', '', $class);
         return str_replace('dummy', strtolower($viewName), $stub);
+    }
+
+
+    /**
+     * Get column from table.
+     *
+     * @param  string  $table
+     * @return string
+     */
+    protected function getColumn($table = '')
+    {
+        $result = '';
+        if ($table)
+        {
+            $result = Schema::getColumnListing($table);
+            if (count($result) > 0)
+            {
+                $result = $this->createFillable($result);
+            }
+        }
+        /*
+        $resultData = '';
+        foreach ($result as $key => $column)
+        {
+            $typeData = Schema::getColumnType('shipments', $column);
+            $resultData .= $column . ' : ' . $typeData . "\n";
+        }
+        */
+        return $result;
+    }
+
+    /**
+     * Create format fillable for model.
+     *
+     * @param  array  $field/column
+     * @return string
+     */
+    protected function createFillable($columnArray = array())
+    {
+        $tab = "\t\t";
+        $result = '';
+        foreach ($columnArray as $key => $column)
+        {
+            if ($result == '')
+                $result .= "$tab".'$item->'.$column.' = $request->'.$column.";";
+            else 
+                $result .= "\n$tab".'$item->'.$column.' = $request->'.$column.";";
+        }
+
+        return $result;
+    }
+
+    /**
+     * Replace primarykey from signature.
+     *
+     * @param  string  $stub
+     * @param  string  $column
+     * @return string
+     */
+    protected function replaceColumnFillable($stub, $column)
+    {
+        return str_replace("'[COLUMN]'", $column, $stub);
     }
 }
